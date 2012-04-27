@@ -36,6 +36,15 @@ When saving this model, if there is a form field named 'file' it will be saved a
 			)
 		);
 
+The behaviour also provides a validation message to check that the file uploaded without any problems.  This can be used as follows.
+
+		public $validate = array(
+			'file' => array(
+				'rule' => 'checkFileUpload',
+				'message' => 'There was a problem uploading your file.'
+			)
+		);
+
 ## Limitations
 
 When using the filesystem for storage, files with the same name will overwrite each other. This wasn't an issue for the way I'm using it and should be easy to work around.
