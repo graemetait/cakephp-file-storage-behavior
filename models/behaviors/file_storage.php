@@ -11,12 +11,30 @@
 
 class FileStorageBehavior extends ModelBehavior
 {
-	protected
-		$storage_type = 'database', // storage method, either 'database' or 'file'
-		$field_name = 'file', // name of the file's form field
-		$folder; // folder path if using folder storage
+	/**
+	 * Storage method. Set to either 'database' or 'file'.
+	 * @var string
+	 */
+	protected $storage_type = 'database';
 
-	public function setup($model, $settings)
+	/**
+	 * The file's form field name. Default is 'file'.
+	 * @var string
+	 */
+	protected $field_name = 'file';
+
+	/**
+	 * Folder path if using folder storage.
+	 * Use an absolute path with no trailing slash. e.g '/var/www/files'
+	 * @var string
+	 */
+	protected $folder;
+
+	/**
+	 * Reads settings from model
+	 * @param array $settings Settings from model
+	 */
+	public function setup(Model $model, $settings)
 	{
 		// load settings
 		foreach ($settings as $setting => $value) {
@@ -24,8 +42,11 @@ class FileStorageBehavior extends ModelBehavior
 		}
 	}
 
-	// validation method for checking that file has uploaded correctly
-	public function checkFileUpload($model, $check)
+	/**
+	 * Validation method for checking that file has uploaded correctly
+	 * @return mixed True if uploaded successfully, else an error message
+	 */
+	public function checkFileUpload(Model $model, $check)
 	{
 		$error_code = $check[$this->field_name]['error'];
 
@@ -47,12 +68,21 @@ class FileStorageBehavior extends ModelBehavior
 		return $message;
 	}
 
-	public function beforeSave($model)
+	/**
+	 * Called automatically when model is saved. Attempts to save file.
+	 * @return bool Whether file has saved successfully
+	 */
+	public function beforeSave(Model $model)
 	{
 		$file_data = $this->getFileDataFromForm($model);
 		return $this->storeFile($model, $file_data);
 	}
 
+	/**
+	 * Calls the appropriate method to save the file depending on storage type.
+	 * @param  array $file_data The file's form data
+	 * @return bool             Whether file has saved successfully
+	 */
 	protected function storeFile($model, $file_data)
 	{
 		switch ($this->storage_type) {
@@ -70,16 +100,24 @@ class FileStorageBehavior extends ModelBehavior
 		return $file_saved;
 	}
 
+	/**
+	 * Fetches the file fields from the form
+	 * @return array File form data
+	 */
 	protected function getFileDataFromForm($model)
 	{
 		$file_data = $model->data[$model->name][$this->field_name];
 
-		// don't want raw file form fields in the model anymore
+		// Remove raw file form fields from the model
 		unset($model->data[$model->name][$this->field_name]);
 
 		return $file_data;
 	}
 
+	/**
+	 * Adds meta data about the file to the model
+	 * @param array $file_data Meta data about the file
+	 */
 	protected function addFileMetaDataToModel($model, $file_data)
 	{
 		$model->data[$model->name]['filename'] = $file_data['name'];
@@ -87,11 +125,22 @@ class FileStorageBehavior extends ModelBehavior
 		$model->data[$model->name]['size'] = $file_data['size'];
 	}
 
+	/**
+	 * Saves file contents to database.
+	 * @param array $file_data The file data
+	 * @return bool            Whether successful
+	 */
 	protected function addFileContentToModel($model, $file_data)
 	{
-		return (bool) $model->data[$model->name]['content'] = file_get_contents($file_data['tmp_name']);
+		return (bool) $model->data[$model->name]['content']
+			= file_get_contents($file_data['tmp_name']);
 	}
 
+	/**
+	 * Saves file in folder.
+	 * @param array $file_data The file data
+	 * @return bool            Whether successful
+	 */
 	protected function storeFileInFolder($file_data)
 	{
 		if (!(is_dir($this->folder) and is_writable($this->folder)))
