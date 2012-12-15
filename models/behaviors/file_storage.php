@@ -12,23 +12,19 @@
 class FileStorageBehavior extends ModelBehavior
 {
 	/**
-	 * Storage method. Set to either 'database' or 'file'.
-	 * @var string
+	 * Default settings, each of which can be overridden in the model.
+	 * - storage_type: string - Set to either 'file' or 'database'.
+	 * - field_name: string - Name of the file input form field.
+	 * - file_path: string - Directory path if using file storage. Set by the
+	 *    function defaultFolderPath().  Should be <path to cake app>/uploads.
+	 *    Use an absolute path with no trailing slash. e.g '/var/www/files'
+	 * @var array
 	 */
-	protected $storage_type = 'database';
-
-	/**
-	 * The file's form field name. Default is 'file'.
-	 * @var string
-	 */
-	protected $field_name = 'file';
-
-	/**
-	 * Folder path if using folder storage.
-	 * Use an absolute path with no trailing slash. e.g '/var/www/files'
-	 * @var string
-	 */
-	protected $folder;
+	protected $default_settings = array(
+		 'storage_type' => 'file',
+		 'field_name' => 'file',
+		 'file_path' => ''
+	);
 
 	/**
 	 * Reads settings from model
@@ -36,9 +32,12 @@ class FileStorageBehavior extends ModelBehavior
 	 */
 	public function setup(Model $model, $settings)
 	{
+		$this->default_settings['file_path'] = $this->defaultFolderPath();
+
 		// load settings
+		$this->settings[$model->alias] = $this->default_settings;
 		foreach ($settings as $setting => $value) {
-			$this->{$setting} = $value;
+			$this->settings[$model->alias][$setting] = $value;
 		}
 	}
 
@@ -48,7 +47,8 @@ class FileStorageBehavior extends ModelBehavior
 	 */
 	public function checkFileUpload(Model $model, $check)
 	{
-		$error_code = $check[$this->field_name]['error'];
+		$field_name = $this->getSetting($model, 'field_name');
+		$error_code = $check[$field_name]['error'];
 
 		if ($error_code == 0)
 			return true;
@@ -85,12 +85,12 @@ class FileStorageBehavior extends ModelBehavior
 	 */
 	protected function storeFile($model, $file_data)
 	{
-		switch ($this->storage_type) {
+		switch ($this->getSetting($model, 'storage_type')) {
 			case 'database':
 				$file_saved = $this->addFileContentToModel($model, $file_data);
 				break;
 			case 'file':
-				$file_saved = $this->storeFileInFolder($file_data);
+				$file_saved = $this->storeFileInFolder($model, $file_data);
 				break;
 		}
 
@@ -106,10 +106,11 @@ class FileStorageBehavior extends ModelBehavior
 	 */
 	protected function getFileDataFromForm($model)
 	{
-		$file_data = $model->data[$model->name][$this->field_name];
+		$field_name = $this->getSetting($model, 'field_name');
+		$file_data = $model->data[$model->name][$field_name];
 
 		// Remove raw file form fields from the model
-		unset($model->data[$model->name][$this->field_name]);
+		unset($model->data[$model->name][$field_name]);
 
 		return $file_data;
 	}
@@ -141,11 +142,34 @@ class FileStorageBehavior extends ModelBehavior
 	 * @param array $file_data The file data
 	 * @return bool            Whether successful
 	 */
-	protected function storeFileInFolder($file_data)
+	protected function storeFileInFolder($model, $file_data)
 	{
-		if (!(is_dir($this->folder) and is_writable($this->folder)))
+		$folder = $this->getSetting($model, 'file_path');
+		if (!(is_dir($folder) and is_writable($folder)))
 			return false;
 
-		return move_uploaded_file($file_data['tmp_name'], $this->folder . DS . $file_data['name']);
+		return move_uploaded_file($file_data['tmp_name'], $folder . DS . $file_data['name']);
+	}
+
+	/**
+	 * Retrieve the setting for the specified model
+	 * @param  string $setting_name The name of the setting
+	 * @return mixed                The setting's value for this model
+	 */
+	protected function getSetting($model, $setting_name)
+	{
+		return $this->settings[$model->alias][$setting_name];
+	}
+
+	/**
+	 * Attempt to come up with a sensible default path for saving files.
+	 * Should be <path to cake app>/uploads
+	 * @return string Path of folder to save files
+	 */
+	protected function defaultFolderPath()
+	{
+		$path = defined('ROOT') ? ROOT : getcwd();
+		$path .= DS . 'uploads';
+		return $path;
 	}
 }
