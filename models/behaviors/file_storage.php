@@ -79,6 +79,54 @@ class FileStorageBehavior extends ModelBehavior
 	}
 
 	/**
+	 * Fetch the file data by record id
+	 * @param  int $id Record id
+	 * @return array   File meta data and contents
+	 */
+	public function fetchFile(Model $model, $id)
+	{
+		if (!$model_data = $model->findById($id))
+			return false;
+
+		$file_data = $model_data[$model->alias];
+
+		if ($this->getSetting($model, 'storage_type') == 'file') {
+			$file_data['content'] = $this->fetchFileContents(
+				$model,
+				$file_data['filename']
+			);
+		}
+
+		if (empty($file_data['content']))
+			return false;
+		return $file_data;
+	}
+
+	/**
+	 * Fetch a file's meta data without the file contents
+	 * @param  int $id Record id
+	 * @return array   File meta data
+	 */
+	public function fetchFileMetaData(Model $model, $id)
+	{
+		return $model->findById($id, array('id', 'filename', 'size'));
+	}
+
+	/**
+	 * Returns the contents of a file from the filesystem
+	 * @param  string $filename Name of file
+	 * @return string           File contents
+	 */
+	protected function fetchFileContents(Model $model, $filename)
+	{
+		$file_path = $this->getSetting($model, 'file_path');
+		$file_path .= DS . $filename;
+		if (!is_readable($file_path))
+			return false;
+		return file_get_contents($file_path);
+	}
+
+	/**
 	 * Calls the appropriate method to save the file depending on storage type.
 	 * @param  array $file_data The file's form data
 	 * @return bool             Whether file has saved successfully
