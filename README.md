@@ -2,7 +2,7 @@
 
 A basic file storage behavior for CakePHP 1.x.
 
-Handles storing uploaded files in database or file system.  If uploading to file system will still store metadata in database.
+Handles storing uploaded files in database or file system.  If uploading to file system will store metadata in database.
 
 ## Installation
 
@@ -26,7 +26,7 @@ Handles storing uploaded files in database or file system.  If uploading to file
 
 ## Usage
 
-When saving this model, if there is a form field named 'file' it will be saved as a file using the behavior. By default it will be saved to the database. The defaults can be changed by passing settings to the behavior as follows.
+When saving this model, if there is a form field named 'file' it will be saved as a file using the behavior. By default it will be saved to the filesystem in an 'uploads' folder in the root folder of your app. The defaults can be changed by passing settings to the behavior as follows.
 
 		public $actsAs = array(
 			'FileStorage' => array(
