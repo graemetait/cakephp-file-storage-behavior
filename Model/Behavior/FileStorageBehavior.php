@@ -28,15 +28,15 @@ class FileStorageBehavior extends ModelBehavior
 
 	/**
 	 * Reads settings from model
-	 * @param array $settings Settings from model
+	 * @param array $config Settings from model
 	 */
-	public function setup(Model $model, $settings)
+	public function setup(Model $model, $config = array())
 	{
 		$this->default_settings['file_path'] = $this->defaultFolderPath();
 
 		// load settings
 		$this->settings[$model->alias] = $this->default_settings;
-		foreach ($settings as $setting => $value) {
+		foreach ($config as $setting => $value) {
 			$this->settings[$model->alias][$setting] = $value;
 		}
 	}
