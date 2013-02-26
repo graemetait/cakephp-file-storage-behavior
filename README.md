@@ -1,6 +1,6 @@
 # CakePHP File Storage Behavior
 
-A basic file storage behavior for CakePHP 1.x.
+A basic file storage behavior for CakePHP 2.x. For CakePHP 1.x see the cakephp1 branch.
 
 Handles storing uploaded files in database or file system.  If uploading to file system will store metadata in database.
 
