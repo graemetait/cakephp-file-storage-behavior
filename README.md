@@ -6,10 +6,21 @@ Handles storing uploaded files in database or file system.  If uploading to file
 
 ## Installation
 
-1. Copy the behavior to models/behaviors in your app.
+If you're using composer then just add the following to your require block.
+
+		"burriko/cake-file-storage": "2.0.*@dev"
+
+If you're not, then clone/copy the contents of this directory to app/Plugins/CakeFileStorage.
+
+## Configure
+
+1. Add the following line to your app/Config/bootstrap.php.
+
+		CakePlugin::load('CakeFileStorage');
+
 2. In your model add:
 
-		public $actsAs = array('FileStorage');
+		public $actsAs = array('CakeFileStorage.FileStorage');
 
 3. Your model's database schema will need fields for filename, type and size, and if storing the file in the db also content. Here is an example schema.
 
@@ -29,7 +40,7 @@ Handles storing uploaded files in database or file system.  If uploading to file
 When saving this model, if there is a form field named 'file' it will be saved as a file using the behavior. By default it will be saved to the filesystem in an 'uploads' folder in the root folder of your app. The defaults can be changed by passing settings to the behavior as follows.
 
 		public $actsAs = array(
-			'FileStorage' => array(
+			'CakeFileStorage.FileStorage' => array(
 				'storage_type' => 'file',
 				'folder' => '/path/to/files'
 				'field_name' => 'my_file'

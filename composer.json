@@ -1,0 +1,28 @@
+{
+    "name": "burriko/cake-file-storage",
+    "description": "A basic file storage behavior for CakePHP. Handles storing uploaded files in database or file system.",
+    "type": "cakephp-plugin",
+    "keywords": ["cakephp", "file", "upload", "storage", "behavior"],
+    "homepage": "https://github.com/burriko/cakephp-file-storage-behavior",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Graeme Tait",
+            "homepage": "http://graemetait.co.uk",
+            "role": "Author"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/burriko/cakephp-file-storage-behavior/issues",
+        "source": "https://github.com/burriko/cakephp-file-storage-behavior"
+    },
+    "require": {
+        "php": ">=5.3.0",
+        "composer/installers": "*"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    }
+}
