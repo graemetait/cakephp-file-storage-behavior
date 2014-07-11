@@ -4,6 +4,8 @@ A basic file storage behavior for CakePHP 2.x. For CakePHP 1.x see the cakephp1 
 
 Handles storing uploaded files in database or filesystem.  If uploading to filesystem will store metadata in database.
 
+Files saved in the filesystem will be saved in a directory hierarchy based on the hash of the file contents.  Filenames are not used, so will never clash.  The hierarchy is to ease performance issues when storing a very large number of files.
+
 ## Installation
 
 If you're using composer then just add the following to your require block.
@@ -22,7 +24,7 @@ If you're not, then clone/copy the contents of this directory to app/Plugins/Cak
 
 		public $actsAs = array('CakeFileStorage.FileStorage');
 
-3. Your model's database schema will need fields for filename, type and size, and if storing the file in the db also content. Here is an example schema.
+3. Your model's database schema will need fields for filename, type and size. If storing the file in the filesystem you will also need one named hash, and if storing in db one named content. Here is an example schema.
 
 		CREATE TABLE `files` (
 		  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -30,6 +32,7 @@ If you're not, then clone/copy the contents of this directory to app/Plugins/Cak
 		  `type` varchar(100) NOT NULL,
 		  `size` mediumint(8) unsigned NOT NULL,
 		  `content` mediumblob NOT NULL,
+		  `hash` varchar(40) NOT NULL,
 		  `created` datetime NOT NULL,
 		  `modified` datetime NOT NULL,
 		  PRIMARY KEY (`id`)
@@ -55,7 +58,3 @@ The behaviour also provides a validation message to check that the file uploaded
 				'message' => 'There was a problem uploading your file.'
 			)
 		);
-
-## Limitations
-
-When using the filesystem for storage, files with the same name will overwrite each other. This wasn't an issue for the way I'm using it and should be easy to work around.
