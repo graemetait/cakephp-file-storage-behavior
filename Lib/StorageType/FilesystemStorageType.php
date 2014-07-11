@@ -4,6 +4,8 @@ App::uses('StorageTypeInterface', 'CakeFileStorage.StorageType');
 
 class FilesystemStorageType implements StorageTypeInterface
 {
+	protected $model;
+
 	protected $settings;
 
 	public function __construct(Model $model, array $config)
@@ -60,7 +62,13 @@ class FilesystemStorageType implements StorageTypeInterface
 		}
 
 		$path_and_filename = $folder . DS . $file_data['name'];
-		return $this->storeFileInFolder($file_data['tmp_name'], $path_and_filename);
+		$file_saved = $this->storeFileInFolder($file_data['tmp_name'], $path_and_filename);
+
+		if ($file_saved) {
+			$this->addFileMetaDataToModel($file_data);
+		}
+
+		return $file_saved;
 	}
 
 	protected function storeFileInFolder($tmp_name, $real_name)
@@ -71,5 +79,17 @@ class FilesystemStorageType implements StorageTypeInterface
 	protected function isValidStorageFolder($folder)
 	{
 		return is_dir($folder) and is_writable($folder);
+	}
+
+	/**
+	 * Adds meta data about the file to the model
+	 *
+	 * @param array $file_data Meta data about the file
+	 */
+	protected function addFileMetaDataToModel($file_data)
+	{
+		$this->model->data[$this->model->name]['filename'] = $file_data['name'];
+		$this->model->data[$this->model->name]['type'] = $file_data['type'];
+		$this->model->data[$this->model->name]['size'] = $file_data['size'];
 	}
 }
