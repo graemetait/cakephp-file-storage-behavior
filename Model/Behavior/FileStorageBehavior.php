@@ -9,25 +9,29 @@
  *
  **/
 
+App::uses('FileStorage', 'CakeFileStorage.Lib');
+
 class FileStorageBehavior extends ModelBehavior
 {
 	/**
 	 * Default settings, each of which can be overridden in the model.
-	 * - storage_type: string - Set to either 'file' or 'database'.
-	 * - field_name: string - Name of the file input form field.
-	 * - file_path: string - Directory path if using file storage. Set by the
-	 *    function defaultFolderPath().  Should be <path to cake app>/uploads.
-	 *    Use an absolute path with no trailing slash. e.g '/var/www/files'
+	 * - storage_type: string - 'filesystem' or 'database'.
+	 * - field_name:   string - Name of the file input form field.
+	 * - file_path:    string - Directory path if using file storage. Use an absolute
+	 *                          path with no trailing slash e.g '/var/www/files'.
+	 *                          Default is ROOT/uploads
+	 *
 	 * @var array
 	 */
 	protected $default_settings = array(
-		 'storage_type' => 'file',
-		 'field_name' => 'file',
-		 'file_path' => ''
+		 'storage_type' => 'filesystem',
+		 'field_name'   => 'file',
+		 'file_path'    => ''
 	);
 
 	/**
 	 * Reads settings from model
+	 *
 	 * @param array $config Settings from model
 	 */
 	public function setup(Model $model, $config = array())
@@ -39,10 +43,16 @@ class FileStorageBehavior extends ModelBehavior
 		foreach ($config as $setting => $value) {
 			$this->settings[$model->alias][$setting] = $value;
 		}
+
+		$this->file_storage[$model->alias] = new FileStorage(
+			$model,
+			$this->settings[$model->alias]
+		);
 	}
 
 	/**
 	 * Validation method for checking that file has uploaded correctly
+	 *
 	 * @return mixed True if uploaded successfully, else an error message
 	 */
 	public function checkFileUpload(Model $model, $check)
@@ -50,8 +60,9 @@ class FileStorageBehavior extends ModelBehavior
 		$field_name = $this->getSetting($model, 'field_name');
 		$error_code = $check[$field_name]['error'];
 
-		if ($error_code == 0)
+		if ($error_code == 0) {
 			return true;
+		}
 
 		switch ($error_code) {
 			case 1:
@@ -69,87 +80,48 @@ class FileStorageBehavior extends ModelBehavior
 	}
 
 	/**
-	 * Called automatically when model is saved. Attempts to save file.
+	 * Called automatically when model is saved. Attempts to save file
+	 *
 	 * @return bool Whether file has saved successfully
 	 */
 	public function beforeSave(Model $model)
 	{
 		$file_data = $this->getFileDataFromForm($model);
-		return $this->storeFile($model, $file_data);
+
+		$file_storage = $this->file_storage[$model->alias];
+
+		return $file_storage->storeFile($file_data);
 	}
 
 	/**
 	 * Fetch the file data by record id
+	 *
 	 * @param  int $id Record id
 	 * @return array   File meta data and contents
 	 */
 	public function fetchFile(Model $model, $id)
 	{
-		if (!$model_data = $model->findById($id))
-			return false;
+		$file_storage = $this->file_storage[$model->alias];
 
-		$file_data = $model_data[$model->alias];
-
-		if ($this->getSetting($model, 'storage_type') == 'file') {
-			$file_data['content'] = $this->fetchFileContents(
-				$model,
-				$file_data['filename']
-			);
-		}
-
-		if (empty($file_data['content']))
-			return false;
-		return $file_data;
+		return $file_storage->fetchFile($id);
 	}
 
 	/**
 	 * Fetch a file's meta data without the file contents
+	 *
 	 * @param  int $id Record id
 	 * @return array   File meta data
 	 */
 	public function fetchFileMetaData(Model $model, $id)
 	{
-		return $model->findById($id, array('id', 'filename', 'size'));
-	}
+		$file_storage = $this->file_storage[$model->alias];
 
-	/**
-	 * Returns the contents of a file from the filesystem
-	 * @param  string $filename Name of file
-	 * @return string           File contents
-	 */
-	protected function fetchFileContents(Model $model, $filename)
-	{
-		$file_path = $this->getSetting($model, 'file_path');
-		$file_path .= DS . $filename;
-		if (!is_readable($file_path))
-			return false;
-		return file_get_contents($file_path);
-	}
-
-	/**
-	 * Calls the appropriate method to save the file depending on storage type.
-	 * @param  array $file_data The file's form data
-	 * @return bool             Whether file has saved successfully
-	 */
-	protected function storeFile($model, $file_data)
-	{
-		switch ($this->getSetting($model, 'storage_type')) {
-			case 'database':
-				$file_saved = $this->addFileContentToModel($model, $file_data);
-				break;
-			case 'file':
-				$file_saved = $this->storeFileInFolder($model, $file_data);
-				break;
-		}
-
-		if ($file_saved)
-			$this->addFileMetaDataToModel($model, $file_data);
-
-		return $file_saved;
+		return $file_storage->fetchFileMetaData($id);
 	}
 
 	/**
 	 * Fetches the file fields from the form
+	 *
 	 * @return array File form data
 	 */
 	protected function getFileDataFromForm($model)
@@ -165,6 +137,7 @@ class FileStorageBehavior extends ModelBehavior
 
 	/**
 	 * Adds meta data about the file to the model
+	 *
 	 * @param array $file_data Meta data about the file
 	 */
 	protected function addFileMetaDataToModel($model, $file_data)
@@ -175,32 +148,8 @@ class FileStorageBehavior extends ModelBehavior
 	}
 
 	/**
-	 * Saves file contents to database.
-	 * @param array $file_data The file data
-	 * @return bool            Whether successful
-	 */
-	protected function addFileContentToModel($model, $file_data)
-	{
-		return (bool) $model->data[$model->name]['content']
-			= file_get_contents($file_data['tmp_name']);
-	}
-
-	/**
-	 * Saves file in folder.
-	 * @param array $file_data The file data
-	 * @return bool            Whether successful
-	 */
-	protected function storeFileInFolder($model, $file_data)
-	{
-		$folder = $this->getSetting($model, 'file_path');
-		if (!(is_dir($folder) and is_writable($folder)))
-			return false;
-
-		return move_uploaded_file($file_data['tmp_name'], $folder . DS . $file_data['name']);
-	}
-
-	/**
 	 * Retrieve the setting for the specified model
+	 *
 	 * @param  string $setting_name The name of the setting
 	 * @return mixed                The setting's value for this model
 	 */
@@ -212,6 +161,7 @@ class FileStorageBehavior extends ModelBehavior
 	/**
 	 * Attempt to come up with a sensible default path for saving files.
 	 * Should be <path to cake app>/uploads
+	 *
 	 * @return string Path of folder to save files
 	 */
 	protected function defaultFolderPath()

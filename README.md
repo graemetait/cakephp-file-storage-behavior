@@ -2,13 +2,13 @@
 
 A basic file storage behavior for CakePHP 2.x. For CakePHP 1.x see the cakephp1 branch.
 
-Handles storing uploaded files in database or file system.  If uploading to file system will store metadata in database.
+Handles storing uploaded files in database or filesystem.  If uploading to filesystem will store metadata in database.
 
 ## Installation
 
 If you're using composer then just add the following to your require block.
 
-		"burriko/cake-file-storage": "2.0.*@dev"
+		"burriko/cake-file-storage": "2.1.*@dev"
 
 If you're not, then clone/copy the contents of this directory to app/Plugins/CakeFileStorage.
 
@@ -41,7 +41,7 @@ When saving this model, if there is a form field named 'file' it will be saved a
 
 		public $actsAs = array(
 			'CakeFileStorage.FileStorage' => array(
-				'storage_type' => 'file',
+				'storage_type' => 'filesystem',
 				'folder' => '/path/to/files'
 				'field_name' => 'my_file'
 			)
