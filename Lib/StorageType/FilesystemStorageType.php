@@ -78,7 +78,9 @@ class FilesystemStorageType implements StorageTypeInterface
 	protected function storeFileInFolder($tmp_name, $real_name)
 	{
 		if ( ! $this->isValidStorageFolder(dirname($real_name))) {
-			mkdir(dirname($real_name));
+			if ( ! mkdir(dirname($real_name), 0755, true)) {
+				throw new InvalidStoragePathException('Failed to create directory for uploaded file');
+			}
 		}
 
 		return move_uploaded_file($tmp_name, $real_name);

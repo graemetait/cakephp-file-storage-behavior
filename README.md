@@ -45,7 +45,7 @@ When saving this model, if there is a form field named 'file' it will be saved a
 		public $actsAs = array(
 			'CakeFileStorage.FileStorage' => array(
 				'storage_type' => 'filesystem',
-				'folder' => '/path/to/files'
+				'file_path' => '/path/to/files'
 				'field_name' => 'my_file'
 			)
 		);
