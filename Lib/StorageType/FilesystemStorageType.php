@@ -1,6 +1,7 @@
 <?php
 
 App::uses('StorageTypeInterface', 'CakeFileStorage.StorageType');
+App::uses('InvalidStoragePathException', 'CakeFileStorage.Exception');
 
 class FilesystemStorageType implements StorageTypeInterface
 {
@@ -59,7 +60,7 @@ class FilesystemStorageType implements StorageTypeInterface
 		$folder = $this->settings['file_path'];
 
 		if ( ! $this->isValidStorageFolder($folder)) {
-			return false;
+			throw new InvalidStoragePathException('Attempting to store file in an invalid path');
 		}
 
 		$file_data['hash'] = $this->hashFile($file_data['tmp_name']);
