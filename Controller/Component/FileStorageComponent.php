@@ -16,7 +16,7 @@ class FileStorageComponent extends Component
 	 * @param  bool  $force_download Whether browser should save or open file
 	 * @return CakeResponse
 	 */
-	public function downloadFile($file_data, $force_download = true)
+	public function createFileResponse($file_data, $force_download = true)
 	{
 		$this->controller->response->type($file_data['type']);
 		$this->controller->response->body($file_data['content']);
