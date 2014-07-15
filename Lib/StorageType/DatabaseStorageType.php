@@ -49,7 +49,13 @@ class DatabaseStorageType implements StorageTypeInterface
 	 */
 	public function storeFile($file_data)
 	{
-		return $this->addFileContentToModel($file_data['tmp_name']);
+		$file_saved = $this->addFileContentToModel($file_data['tmp_name']);
+
+		if ($file_saved) {
+			$this->addFileMetaDataToModel($file_data);
+		}
+
+		return $file_saved;
 	}
 
 	/**
@@ -64,4 +70,15 @@ class DatabaseStorageType implements StorageTypeInterface
 			= file_get_contents($file_contents);
 	}
 
+	/**
+	 * Adds meta data about the file to the model
+	 *
+	 * @param array $file_data Meta data about the file
+	 */
+	protected function addFileMetaDataToModel($file_data)
+	{
+		$this->model->data[$this->model->name]['filename'] = $file_data['name'];
+		$this->model->data[$this->model->name]['type'] = $file_data['type'];
+		$this->model->data[$this->model->name]['size'] = $file_data['size'];
+	}
 }

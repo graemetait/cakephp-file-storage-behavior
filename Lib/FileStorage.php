@@ -69,29 +69,11 @@ class FileStorage
 	 */
 	public function storeFile($file_data)
 	{
-		$file_saved = $this->storage->storeFile($file_data);
-
-		if ($file_saved) {
-			$this->addFileMetaDataToModel($file_data);
-		}
-
-		return $file_saved;
+		return $this->storage->storeFile($file_data);
 	}
 
 	protected function getSetting($setting)
 	{
 		return $this->settings[$setting];
-	}
-
-	/**
-	 * Adds meta data about the file to the model
-	 *
-	 * @param array $file_data Meta data about the file
-	 */
-	protected function addFileMetaDataToModel($file_data)
-	{
-		$this->model->data[$this->model->name]['filename'] = $file_data['name'];
-		$this->model->data[$this->model->name]['type'] = $file_data['type'];
-		$this->model->data[$this->model->name]['size'] = $file_data['size'];
 	}
 }
