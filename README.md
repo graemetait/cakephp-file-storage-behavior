@@ -58,3 +58,17 @@ The behaviour also provides a validation message to check that the file uploaded
 				'message' => 'There was a problem uploading your file.'
 			)
 		);
+
+You can retrieve the file from the model by using the fetchFile() method, and send the file back as a response by using the downloadFile() method of the FileStorage component.  Here's an example controller that puts those together.
+
+		class DocumentsController extends AppController
+		{
+			public $components = array('CakeFileStorage.FileStorage');
+
+			public function download($id)
+			{
+				$document = $this->Document->fetchFile($id);
+
+				return $this->FileStorage->downloadFile($document);
+			}
+		}
