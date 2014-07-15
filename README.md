@@ -69,6 +69,6 @@ You can retrieve the file from the model by using the fetchFile() method, and se
 			{
 				$document = $this->Document->fetchFile($id);
 
-				return $this->FileStorage->downloadFile($document);
+				return $this->FileStorage->createFileResponse($document);
 			}
 		}
