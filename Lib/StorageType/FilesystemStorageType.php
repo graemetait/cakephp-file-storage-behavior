@@ -39,8 +39,7 @@ class FilesystemStorageType implements StorageTypeInterface
 	 */
 	public function fetchFileContents($meta_data)
 	{
-		$file_path = $this->settings['file_path'];
-		$file_path .= $this->generatePathFromHash($meta_data['hash']);
+		$file_path = $this->generateFullPathToFile($meta_data['hash']);
 
 		if ( ! is_readable($file_path)) {
 			return false;
@@ -57,16 +56,14 @@ class FilesystemStorageType implements StorageTypeInterface
 	 */
 	public function storeFile($file_data)
 	{
-		$folder = $this->settings['file_path'];
-
-		if ( ! $this->isValidStorageFolder($folder)) {
+		if ( ! $this->isValidStorageFolder($this->settings['file_path'])) {
 			throw new InvalidStoragePathException('Attempting to store file in an invalid path');
 		}
 
 		$file_data['hash'] = $this->hashFile($file_data['tmp_name']);
 
-		$path_and_filename = $folder . $this->generatePathFromHash($file_data['hash']);
-		$file_saved = $this->storeFileInFolder($file_data['tmp_name'], $path_and_filename);
+		$full_path = $this->generateFullPathToFile($file_data['hash']);
+		$file_saved = $this->storeFileInFolder($file_data['tmp_name'], $full_path);
 
 		if ($file_saved) {
 			$this->addFileMetaDataToModel($file_data);
@@ -77,13 +74,11 @@ class FilesystemStorageType implements StorageTypeInterface
 
 	public function deleteFile($id)
 	{
-		$folder = $this->settings['file_path'];
-
 		$file_data = $this->fetchFileMetaData($id);
 
-		$path_and_filename = $folder . $this->generatePathFromHash($file_data['hash']);
+		$full_path = $this->generateFullPathToFile($file_data['hash']);
 
-		return $this->unlink($path_and_filename);
+		return $this->unlink($full_path);
 	}
 
 	protected function unlink($file)
@@ -163,6 +158,20 @@ class FilesystemStorageType implements StorageTypeInterface
 	protected function openFile($file_name)
 	{
 		return file_get_contents($file_name);
+	}
+
+	protected function generateFullPathToFile($hash)
+	{
+		$full_path = $this->settings['file_path'];
+		$full_path .= $this->generatePathFromModelName($this->model->alias);
+		$full_path .= $this->generatePathFromHash($hash);
+
+		return $full_path;
+	}
+
+	protected function generatePathFromModelName($model_name)
+	{
+		return '/' . Inflector::tableize($model_name);
 	}
 
 	protected function generatePathFromHash($hash)
