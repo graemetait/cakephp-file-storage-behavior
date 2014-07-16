@@ -93,6 +93,13 @@ class FileStorageBehavior extends ModelBehavior
 		return $file_storage->storeFile($file_data);
 	}
 
+	public function beforeDelete(Model $model, $cascade = true)
+	{
+		$file_storage = $this->file_storage[$model->alias];
+
+		return $file_storage->deleteFile($model->id);
+	}
+
 	/**
 	 * Fetch the file data by record id
 	 *

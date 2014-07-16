@@ -75,6 +75,57 @@ class FilesystemStorageType implements StorageTypeInterface
 		return $file_saved;
 	}
 
+	public function deleteFile($id)
+	{
+		$folder = $this->settings['file_path'];
+
+		$file_data = $this->fetchFileMetaData($id);
+
+		$path_and_filename = $folder . $this->generatePathFromHash($file_data['hash']);
+
+		return $this->unlink($path_and_filename);
+	}
+
+	protected function unlink($file)
+	{
+		$folder = $this->settings['file_path'];
+
+		// A few safety checks
+
+		// If not in uploads folder, then abort
+		if (strpos($file, $folder) !== 0) {
+			return false;
+		}
+
+		if ( ! is_file($file)) {
+			return false;
+		}
+
+		$file_deleted = unlink($file);
+
+		// Tidy up possibly-empty folders
+		if ($this->deleteEmptyFolder(dirname($file))) {
+			$this->deleteEmptyFolder(dirname(dirname($file)));
+		}
+
+		return $file_deleted;
+	}
+
+	protected function deleteEmptyFolder($folder)
+	{
+		if (is_dir($folder) and $this->isFolderEmpty($folder)) {
+			return rmdir($folder);
+		}
+
+		return false;
+	}
+
+	protected function isFolderEmpty($folder)
+	{
+		// 2 because of . and ..
+		return count(scandir($folder)) <= 2;
+	}
+
 	protected function storeFileInFolder($tmp_name, $real_name)
 	{
 		if ( ! $this->isValidStorageFolder(dirname($real_name))) {

@@ -72,6 +72,11 @@ class FileStorage
 		return $this->storage->storeFile($file_data);
 	}
 
+	public function deleteFile($id)
+	{
+		return $this->storage->deleteFile($id);
+	}
+
 	protected function getSetting($setting)
 	{
 		return $this->settings[$setting];
