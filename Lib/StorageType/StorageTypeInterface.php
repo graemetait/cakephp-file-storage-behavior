@@ -21,8 +21,16 @@ interface StorageTypeInterface
 	/**
 	 * Store file
 	 *
-	 * @param array $file_data
+	 * @param  array $file_data
 	 * @return bool
 	 */
 	public function storeFile($file_data);
+
+	/**
+	 * Delete file
+	 *
+	 * @param  int $id Record id
+	 * @return bool
+	 */
+	public function deleteFile($id);
 }

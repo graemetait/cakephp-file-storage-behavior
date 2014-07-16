@@ -59,6 +59,17 @@ class DatabaseStorageType implements StorageTypeInterface
 	}
 
 	/**
+	 * Delete file
+	 *
+	 * @param  int $id Record id
+	 * @return bool
+	 */
+	public function deleteFile($id)
+	{
+		return true;
+	}
+
+	/**
 	 * Saves file contents to database.
 	 *
 	 * @param array $file_contents

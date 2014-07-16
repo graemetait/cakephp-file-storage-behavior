@@ -72,6 +72,12 @@ class FilesystemStorageType implements StorageTypeInterface
 		return $file_saved;
 	}
 
+	/**
+	 * Delete file
+	 *
+	 * @param  int $id Record id
+	 * @return bool
+	 */
 	public function deleteFile($id)
 	{
 		$file_data = $this->fetchFileMetaData($id);
