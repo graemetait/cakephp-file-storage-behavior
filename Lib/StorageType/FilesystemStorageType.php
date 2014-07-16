@@ -76,9 +76,21 @@ class FilesystemStorageType implements StorageTypeInterface
 	{
 		$file_data = $this->fetchFileMetaData($id);
 
+		// If other records use this file then don't delete it
+		if ($this->countFilesWithHash($file_data['hash']) > 1) {
+			return true;
+		}
+
 		$full_path = $this->generateFullPathToFile($file_data['hash']);
 
 		return $this->unlink($full_path);
+	}
+
+	protected function countFilesWithHash($hash)
+	{
+		return $this->model->find('count', array(
+			'conditions' => array('hash' => $hash)
+		));
 	}
 
 	protected function unlink($file)
