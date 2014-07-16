@@ -86,11 +86,14 @@ class FileStorageBehavior extends ModelBehavior
 	 */
 	public function beforeSave(Model $model)
 	{
-		$file_data = $this->getFileDataFromForm($model);
+		if ($file_data = $this->getFileDataFromForm($model)) {
 
-		$file_storage = $this->file_storage[$model->alias];
+			$file_storage = $this->file_storage[$model->alias];
 
-		return $file_storage->storeFile($file_data);
+			return $file_storage->storeFile($file_data);
+		}
+
+		return true;
 	}
 
 	public function beforeDelete(Model $model, $cascade = true)
@@ -134,7 +137,11 @@ class FileStorageBehavior extends ModelBehavior
 	protected function getFileDataFromForm($model)
 	{
 		$field_name = $this->getSetting($model, 'field_name');
-		$file_data = $model->data[$model->name][$field_name];
+		if (isset($model->data[$model->name][$field_name])) {
+			$file_data = $model->data[$model->name][$field_name];
+		} else {
+			$file_data = false;
+		}
 
 		// Remove raw file form fields from the model
 		unset($model->data[$model->name][$field_name]);
