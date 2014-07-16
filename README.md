@@ -72,3 +72,5 @@ You can retrieve the file from the model by using the fetchFile() method, and se
 				return $this->FileStorage->createFileResponse($document);
 			}
 		}
+
+When deleting a record the file will also be removed from disk, but only if no other record is pointing to the same file (because files are saved under a hash of their contents, if the same file was uploaded for multiple records they would all share the same file on disk).
