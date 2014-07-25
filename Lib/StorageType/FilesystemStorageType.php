@@ -25,7 +25,10 @@ class FilesystemStorageType implements StorageTypeInterface
 	{
 		$fields = array('id', 'filename', 'type', 'size', 'hash');
 		if ($record = $this->model->findById($id, $fields)) {
-			return $record[$this->model->alias];
+			$record = $record[$this->model->alias];
+			$record['path'] = $this->generateFullPathToFile($record['hash']);
+
+			return $record;
 		} else {
 			return false;
 		}
