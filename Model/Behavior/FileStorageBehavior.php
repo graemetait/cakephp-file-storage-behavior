@@ -10,6 +10,7 @@
  **/
 
 App::uses('FileStorage', 'CakeFileStorage.Lib');
+App::uses('InvalidFileFormFieldException', 'CakeFileStorage.Exception');
 
 class FileStorageBehavior extends ModelBehavior
 {
@@ -138,6 +139,13 @@ class FileStorageBehavior extends ModelBehavior
 	{
 		$field_name = $this->getSetting($model, 'field_name');
 		if (isset($model->data[$model->name][$field_name])) {
+
+			if ( ! is_array($model->data[$model->name][$field_name])) {
+				throw new InvalidFileFormFieldException(
+					'Check that form is multipart'
+				);
+			}
+
 			$file_data = $model->data[$model->name][$field_name];
 		} else {
 			$file_data = false;
