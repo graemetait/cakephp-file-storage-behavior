@@ -1,8 +1,8 @@
 # CakePHP File Storage Behavior
 
-A basic file storage behavior for CakePHP 2.x. For CakePHP 1.x see the cakephp1 branch.
+A file storage plugin for CakePHP 2.x. For the CakePHP 1.x behavior see the cakephp1 branch.
 
-Handles storing uploaded files in database or filesystem.  If uploading to filesystem will store metadata in database.
+Handles attaching files to models and storing uploaded files in database or filesystem.  If uploading to filesystem will store metadata in database.
 
 Files saved in the filesystem will be saved in a directory hierarchy based on the hash of the file contents.  Filenames are not used, so will never clash.  The hierarchy is to ease performance issues when storing a very large number of files.
 
