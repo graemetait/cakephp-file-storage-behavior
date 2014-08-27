@@ -1,4 +1,4 @@
-# CakePHP File Storage Behavior
+# CakePHP File Storage Behavior [![Build Status](https://travis-ci.org/burriko/cakephp-file-storage-behavior.svg?branch=master)](https://travis-ci.org/burriko/cakephp-file-storage-behavior)
 
 A file storage plugin for CakePHP 2.x. For the CakePHP 1.x behavior see the cakephp1 branch.
 
