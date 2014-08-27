@@ -18,7 +18,7 @@ install:
   - sh -c "ln -s ~/.composer/vendor/phpunit/phpunit/PHPUnit ../cakephp/vendors/PHPUnit"
 
 script:
-  - ./lib/Cake/Console/cake test DebugKit AllDebugKit --stderr
+  - ./lib/Cake/Console/cake test CakeFileStorage AllTests --stderr
 
 notifications:
   email: false
