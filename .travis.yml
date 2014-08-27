@@ -1,13 +1,14 @@
 language: php
 
 php:
+  - 5.2
   - 5.3
   - 5.4
   - 5.5
 
 env:
-  - CAKE_VERSION=2.3.10
   - CAKE_VERSION=2.4.10
+  - CAKE_VERSION=2.5.3
   - CAKE_VERSION=master
 
 install:
@@ -19,6 +20,3 @@ install:
 
 script:
   - ./lib/Cake/Console/cake test CakeFileStorage AllTests --stderr
-
-notifications:
-  email: false
