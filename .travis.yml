@@ -12,7 +12,7 @@ env:
 
 install:
   - git clone git://github.com/cakephp/cakephp ../cakephp && cd ../cakephp && git checkout $CAKE_VERSION
-  - cp -R ../cake-file-storage-behavior plugins/CakeFileStorage
+  - cp -R ../cakephp-file-storage-behavior plugins/CakeFileStorage
   - chmod -R 777 ../cakephp/app/tmp
   - sh -c "composer global require 'phpunit/phpunit=3.7.33'"
   - sh -c "ln -s ~/.composer/vendor/phpunit/phpunit/PHPUnit ../cakephp/vendors/PHPUnit"
