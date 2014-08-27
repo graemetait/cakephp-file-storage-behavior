@@ -2,7 +2,7 @@
 
 App::uses('AppModel', 'Model');
 
-class TestModel extends Model
+class TestModel extends AppModel
 {
 
 }
