@@ -43,4 +43,32 @@ class FilesystemStorageTypeTest extends CakeTestCase
 
 		$this->assertEqual(false, $meta_data);
 	}
+
+	public function testFetchFileContents()
+	{
+		$file_path = App::pluginPath('CakeFileStorage') . 'Test' . DS . 'test_files';
+		$meta_data = array(
+			'hash' => 'hw7efy29h7ed29d8ed2'
+		);
+
+		$model = $this->getMockForModel('TestModel');
+		$storage_type = new FilesystemStorageType($model, compact('file_path'));
+		$file_contents = $storage_type->fetchFileContents($meta_data);
+
+		$this->assertEqual('contents of test file', $file_contents);
+	}
+
+	public function testFetchFileContentsNoFile()
+	{
+		$file_path = App::pluginPath('CakeFileStorage') . 'Test' . DS . 'test_files';
+		$meta_data = array(
+			'hash' => 'lkjsdflkj903jfi0'
+		);
+
+		$model = $this->getMockForModel('TestModel');
+		$storage_type = new FilesystemStorageType($model, compact('file_path'));
+		$file_contents = $storage_type->fetchFileContents($meta_data);
+
+		$this->assertEqual(false, $file_contents);
+	}
 }
