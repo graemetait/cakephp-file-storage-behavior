@@ -85,7 +85,7 @@ class FileStorageBehavior extends ModelBehavior
 	 *
 	 * @return bool Whether file has saved successfully
 	 */
-	public function beforeSave(Model $model)
+	public function beforeSave(Model $model, $options = array())
 	{
 		if ($file_data = $this->getFileDataFromForm($model)) {
 
